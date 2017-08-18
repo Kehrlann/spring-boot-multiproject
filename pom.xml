@@ -20,6 +20,7 @@
 
     <modules>
         <module>first-service</module>
+        <module>second-service</module>
     </modules>
 
 	<properties>

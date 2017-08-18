@@ -1,4 +1,4 @@
-package wf.garnier.springboot.multiproject.firstservice
+package wf.garnier.springboot.multiproject.secondservice
 
 import org.junit.Test
 import org.junit.runner.RunWith
