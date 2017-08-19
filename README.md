@@ -31,9 +31,10 @@ end up in it's own directory, under `/target`
 ```
 
 
-## Building ONE project
+## Building only one project
 All projects can be built with `mvn package`, either from their own folder or from
-the root folder :
+the root folder. From the root folder, you run maven with the `-pl` flag, to select
+the projects you want to build.
 
 ```bash
     # From the root folder
@@ -43,3 +44,33 @@ the root folder :
     $ cd first-service
     $ mvn package
 ```
+
+## Running only one project with the Spring-Boot plugin
+You easily can run a single project by using the Maven spring-boot plugin.
+```bash
+    $ mvn spring-boot:run -pl first-service
+```
+
+## Running all projects with the Spring-Boot plugin
+If you want to start all projects at the same time, you would need to do several
+things :
+1. Tell the spring-boot plugin to fork each run into it's own process. To do so,
+you can update your spring-boot config in the parent pom like so :
+
+    ```xml
+    <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+            <fork>true</fork>
+        </configuration>
+    </plugin>
+    ```
+
+2. Tell maven to run on multiple thread so it doesn't wait out on one of the runs.
+To do so, you would launch maven with `-T X`, X being the number of threads. It has
+to be >= to the number of projects you want to run in parallel :
+
+    ```bash
+    $ mvn -T 2 -pl first-service,second-service spring-boot:run
+    ```
