@@ -10,7 +10,7 @@ class SecondServiceApplication
 
 
 @RestController
-class HelloController {
+class HolaController {
     @GetMapping("/hola")
     fun greet() = "Hola ! I am the second service."
 }

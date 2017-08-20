@@ -1,4 +1,4 @@
-package wf.garnier.springboot.multiproject.secondservice
+package wf.garnier.springboot.multiproject.firstservice
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication

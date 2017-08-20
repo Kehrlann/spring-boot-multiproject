@@ -54,8 +54,10 @@ You easily can run a single project by using the Maven spring-boot plugin.
 ## Running all projects with the Spring-Boot plugin
 If you want to start all projects at the same time, you would need to do several
 things :
-1. Tell the spring-boot plugin to fork each run into it's own process. To do so,
-you can update your spring-boot config in the parent pom like so :
+1. Tell the spring-boot plugin to fork each run into it's own process. Otherwise,
+the app runs in the same process as maven, and really weird stuff happen when
+you try to run several apps in parallel. To do so, you can update your spring-boot
+config in the parent pom like so :
 
     ```xml
     <plugin>
@@ -74,3 +76,133 @@ to be >= to the number of projects you want to run in parallel :
     ```bash
     $ mvn -T 2 -pl first-service,second-service spring-boot:run
     ```
+
+## Running all projects in one JVM
+The previous example is convenient to run everything in parallel, but what if you're
+trying to run several Spring Boot apps at the same time on your tiny laptop ? The
+JVM is quite memory hungry.
+
+You can create a new project, here called dev-server, that is also a submodule of the
+parent pom. It imports both first-service and second-service. You can configure it to
+have it's own endpoint, here we will add `/dev`, but it could be more useful, like
+mock endpoints.
+
+1. First, you update the pom with the correct dependencies :
+
+    ```xml
+    <project ...>
+
+        [...]
+        <parent>
+            <groupId>wf.garnier.springboot.multiproject</groupId>
+            <artifactId>parent</artifactId>
+            <version>1.0</version>
+            <relativePath>..</relativePath>
+        </parent>
+
+        <dependencies>
+            <dependency>
+                <groupId>wf.garnier.springboot.multiproject</groupId>
+                <artifactId>first-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>wf.garnier.springboot.multiproject</groupId>
+                <artifactId>second-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </project>
+    ```
+
+2. You then tell Spring you want it to import other projects while auto-confguring :
+
+    ```kotlin
+    @SpringBootApplication
+    @Import(FirstServiceApplication::class, SecondServiceApplication::class)
+    class DevServerApplication
+ 
+    fun main(args: Array<String>) {
+        SpringApplication.run(DevServerApplication::class.java, *args)
+    }
+    ```
+
+3. Now to build the project, you need to tell maven to "also-make" the dependencies,
+i.e. to compile them and make them available for your dev server. This is achieved
+with the `-am` flag. If you're working with an IDE, this is usually done for you
+automatically. In the root directory :
+
+    ```bash
+    $ mvn package -am -pl dev-server
+    ```
+
+4. You can push it one step further and run it with the maven Spring Boot plugin.
+However, if you just try to run `mvn spring-boot:run -am -pl dev-server`, maven
+will blindly try to `spring-boot:run` ALL the projects involved : the dev-server
+of course, but also the parent and both services. And you don't want to run the
+services in the first place ! Moreover, the parent just can't run. A few steps
+are required to fix that.
+    1. First, configure the spring-boot plugin in the parent pom, telling it to
+    "skip" the execution, so spring-boot:run won't run the projects. To avoid
+    breaking the previous examples, we are going to put it in a maven profile,
+    called `dev`, like so :
+ 
+        ```xml
+        <profiles>
+            <profile>
+                <id>dev</id>
+                <build>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-maven-plugin</artifactId>
+                            <configuration>
+                                <skip>true</skip>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </build>
+            </profile>
+        </profiles>
+        ```
+
+    2. Second, you configure the dev-server, to *not* skip :
+
+        ```xml
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
+        ```
+
+    3. You can then launch the dev-server only, from the root folder, by telling
+    maven to use your newly created `dev` profile with `-P dev` :
+
+        ```bash
+        $ mvn spring-boot:run -pl dev-server -am -P dev
+        ```
+
+    4. It should *just work*©, and you should see in your console the mappings from
+    the three projects being logged :
+
+        ```
+        ... Mapped "{[/dev],methods=[GET]}" onto public java.lang.String wf.garnier.springboot.multiproject.devserver.DevServerController.hi()
+        ... Mapped "{[/hello],methods=[GET]}" onto public java.lang.String wf.garnier.springboot.multiproject.firstservice.HelloController.greet()
+        ... Mapped "{[/hola],methods=[GET]}" onto public java.lang.String wf.garnier.springboot.multiproject.secondservice.HolaController.greet()
+
+        ```
+
+
+
+## TODO :
+- [ ] Try devtools
+- [ ] Try merging application.yml's in the dev server
+- [ ] Understand why forking is necessary in multi-threaded maven environment ? 
