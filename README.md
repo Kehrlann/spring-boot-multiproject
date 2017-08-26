@@ -200,9 +200,18 @@ are required to fix that.
 
         ```
 
+    5. The project s compatible with [Spring dev tools](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-devtools.html) 
+    If one of the submodules has the dev-tools as a dependency, the dev-server will
+    have them as well. To add the dev tools. Remember to build the dev-server to
+    have changes Spring reload the context. The dependency would be :
 
+        ```xml
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+        ```
 
 ## TODO :
-- [ ] Try devtools
 - [ ] Try merging application.yml's in the dev server
 - [ ] Understand why forking is necessary in multi-threaded maven environment ? 
