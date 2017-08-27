@@ -1,2 +1,4 @@
 server:
   port: 8080
+
+message: This is the generic message created by the dev server.

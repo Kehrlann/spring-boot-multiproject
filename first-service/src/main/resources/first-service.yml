@@ -1,0 +1,6 @@
+server:
+  port: 8081
+
+message: This is a message from the first service.
+
+first-service.message: This is the specific message from the FIRST service.

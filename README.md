@@ -212,6 +212,17 @@ are required to fix that.
         </dependency>
         ```
 
+## Using property files :
+Properties can be distributed among several modules, but to avoid conflicts, each
+submodule must have it's own property file, specifically named. Otherwise, only one
+of the property files will be taken into account.
+
+Within those property files, variables with the same name will be shadowed, and
+only one will be taken into account. To avoid collisions, you can prefix the names
+of properties, e.g. `first-service.message` and `second-service.message`. On the
+hand, the dev-server can re-define some of the specific properties, e.g. when mocking
+a service or something similar.
+
+
 ## TODO :
-- [ ] Try merging application.yml's in the dev server
-- [ ] Understand why forking is necessary in multi-threaded maven environment ? 
+- [ ] Understand why forking is necessary in multi-threaded maven environment ?

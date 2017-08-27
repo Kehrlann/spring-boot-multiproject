@@ -1,0 +1,5 @@
+server.port: 8082
+
+message: Hola from the second server.
+
+second-service.message:  This is the specific message from the SECOND service.
