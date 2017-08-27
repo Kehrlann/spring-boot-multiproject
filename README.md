@@ -26,7 +26,7 @@ commands from the root directory. Each subproject will be built, and the output 
 end up in it's own directory, under `/target`
 
 ```bash
-    $ mvn package
+    $ mvn clean package
     # output will be in each respective project, e.g. first-service/target/first-service-1.0.jar
 ```
 
@@ -38,17 +38,17 @@ the projects you want to build.
 
 ```bash
     # From the root folder
-    $ mvn package -pl first-service
+    $ mvn clean package -pl first-service
 
     # From a subfolder
     $ cd first-service
-    $ mvn package
+    $ mvn clean package
 ```
 
 ## Running only one project with the Spring-Boot plugin
 You easily can run a single project by using the Maven spring-boot plugin.
 ```bash
-    $ mvn spring-boot:run -pl first-service
+    $ mvn clean spring-boot:run -pl first-service
 ```
 
 ## Running all projects with the Spring-Boot plugin
@@ -74,7 +74,7 @@ To do so, you would launch maven with `-T X`, X being the number of threads. It 
 to be >= to the number of projects you want to run in parallel :
 
     ```bash
-    $ mvn -T 2 -pl first-service,second-service spring-boot:run
+    $ mvn -T 2 -pl first-service,second-service clean spring-boot:run
     ```
 
 ## Running all projects in one JVM
@@ -134,7 +134,7 @@ with the `-am` flag. If you're working with an IDE, this is usually done for you
 automatically. In the root directory :
 
     ```bash
-    $ mvn package -am -pl dev-server
+    $ mvn clean package -am -pl dev-server
     ```
 
 4. You can push it one step further and run it with the maven Spring Boot plugin.
@@ -187,7 +187,7 @@ are required to fix that.
     maven to use your newly created `dev` profile with `-P dev` :
 
         ```bash
-        $ mvn spring-boot:run -pl dev-server -am -P dev
+        $ mvn clean spring-boot:run -pl dev-server -am -P dev
         ```
 
     4. It should *just work*©, and you should see in your console the mappings from
